@@ -7,7 +7,7 @@ import model.Utilitario;
 import model.Veiculo;
 import service.Locadora;
 
-/** UC01: gerenciar veículos (só o Gerente chega aqui). */
+/** UC01 gerenciar veiculos só o Gerente chega aqui */
 public class TelaVeiculos extends Tela {
     private static final String INCLUIR = "Incluir veículo";
     private static final String ALTERAR = "Alterar veículo";
@@ -18,12 +18,14 @@ public class TelaVeiculos extends Tela {
     private static final String MANUTENCAO = "Enviar para manutenção";
     private static final String RETORNAR = "Retornar da manutenção";
 
+    // TODO: cria a tela de veiculos
     public TelaVeiculos(Locadora locadora) {
         super(locadora);
     }
 
-    /** Campos que todo veículo tem, lidos de uma vez para que a alteração seja tudo ou nada. */
+    // TODO: guarda os campos comuns lidos
     private record DadosComuns(String placa, String marca, String modelo, int ano, String cor, int km, double diaria) {
+        // TODO: copia os campos comuns para o veiculo
         void aplicar(Veiculo v) {
             v.setPlaca(placa);
             v.setMarca(marca);
@@ -35,16 +37,19 @@ public class TelaVeiculos extends Tela {
         }
     }
 
+    // TODO: devolve o titulo da tela
     @Override
     protected String titulo() {
         return "Veículos";
     }
 
+    // TODO: devolve as opcoes do menu
     @Override
     protected String[] opcoes() {
         return new String[]{INCLUIR, ALTERAR, EXCLUIR, CONSULTAR, LISTAR, LISTAR_CATEGORIA, MANUTENCAO, RETORNAR};
     }
 
+    // TODO: executa a opcao escolhida no menu
     @Override
     protected void executar(String opcao) throws LocadoraException {
         switch (opcao) {
@@ -68,10 +73,12 @@ public class TelaVeiculos extends Tela {
         }
     }
 
+    // TODO: pede a placa e busca o veiculo
     private Veiculo buscar(String mensagem) throws LocadoraException {
         return locadora.getVeiculos().buscarPorPlaca(lerTexto(mensagem));
     }
 
+    // TODO: pede a categoria e os dados e inclui o veiculo
     private void incluir() throws LocadoraException {
         String[] categorias = Veiculo.CATEGORIAS.toArray(new String[0]);
         String categoria = categorias[lerOpcao("Categoria do veículo:", categorias)];
@@ -101,6 +108,7 @@ public class TelaVeiculos extends Tela {
         mostrar("Veículo incluído com o código " + veiculo.getId() + ".");
     }
 
+    // TODO: mostra os dados atuais e altera o veiculo
     private void alterar() throws LocadoraException {
         Veiculo atual = buscar("Placa do veículo a alterar:");
         DadosComuns d = lerDadosComuns(atual);
@@ -129,7 +137,7 @@ public class TelaVeiculos extends Tela {
         mostrar("Veículo " + atual.getPlaca() + " alterado.");
     }
 
-    /** Com um veículo, usa os valores atuais como sugestão; com null, os campos começam vazios. */
+    // TODO: le os campos comuns sugerindo os valores do veiculo atual se houver
     private DadosComuns lerDadosComuns(Veiculo atual) throws LocadoraException {
         String placa = lerTexto("Placa (ex.: ABC1D23):", atual == null ? "" : atual.getPlaca());
         String marca = lerTexto("Marca:", atual == null ? "" : atual.getMarca());
@@ -141,6 +149,7 @@ public class TelaVeiculos extends Tela {
         return new DadosComuns(placa, marca, modelo, ano, cor, km, diaria);
     }
 
+    // TODO: confirma e exclui o veiculo
     private void excluir() throws LocadoraException {
         Veiculo v = buscar("Placa do veículo a excluir:");
         if (lerSimNao("Excluir o veículo " + v.getPlaca() + " (" + v.getMarca() + " " + v.getModelo() + ")?")) {
@@ -149,6 +158,7 @@ public class TelaVeiculos extends Tela {
         }
     }
 
+    // TODO: pede a categoria e lista os veiculos dela
     private void listarPorCategoria() {
         String[] categorias = Veiculo.CATEGORIAS.toArray(new String[0]);
         String categoria = categorias[lerOpcao("Categoria:", categorias)];

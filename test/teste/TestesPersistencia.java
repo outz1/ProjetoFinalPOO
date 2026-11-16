@@ -20,17 +20,20 @@ import static teste.Verificador.igual;
 import static teste.Verificador.lanca;
 import static teste.Verificador.verdadeiro;
 
-/** Gravação e leitura de objetos em arquivo (item g) e carga das listas (item m). */
+/** Gravacao e leitura de objetos em arquivo item g e carga das listas item m */
 final class TestesPersistencia {
+    // TODO: classe utilitaria nao instanciavel
     private TestesPersistencia() {
     }
 
+    // TODO: cria uma locadora nova e carrega o arquivo do cenario
     private static Locadora recarregar(Cenario c) throws LocadoraException {
         Locadora nova = new Locadora(new ArquivoDados(c.arquivo().toString()));
         nova.carregarDados();
         return nova;
     }
 
+    // TODO: executa os casos de gravacao e leitura em arquivo
     static void executar() {
         grupo("Persistência: arquivo dados/locadora.dat por serialização");
         caso("CT65", "RF13, item g", "Salvar e carregar preserva todos os dados, inclusive o tipo de cada veículo", () -> {
@@ -72,7 +75,7 @@ final class TestesPersistencia {
             verdadeiro(lidaLocacao.getCliente() == lida.getClientes().buscarPorId(cliente.getId()), "mesmo cliente");
             verdadeiro(lidaLocacao.getFuncionario() == lida.getFuncionarios().buscarPorId(c.atendente.getId()), "mesmo funcionário");
 
-            // a devolução na locadora recarregada libera o veículo que está na lista
+            // a devolucao na locadora recarregada libera o veiculo que esta na lista
             lida.registrarDevolucao(l.getId(), dia(3), 1500);
             igual(SituacaoVeiculo.DISPONIVEL, lida.getVeiculos().buscarPorId(carro.getId()).getSituacao());
         });
@@ -111,7 +114,7 @@ final class TestesPersistencia {
             Locacao l = c.locar(cliente, carro, dia(3), false);
             int maiorPessoa = Math.max(cliente.getId(), Math.max(c.atendente.getId(), c.gerente.getId()));
 
-            // os contadores são estáticos: só uma JVM nova prova que o reajuste depois da leitura funciona
+            // os contadores sao estaticos so uma JVM nova prova que o reajuste depois da leitura funciona
             String java = Path.of(System.getProperty("java.home"), "bin", "java").toString();
             Process processo = new ProcessBuilder(java, "-cp", System.getProperty("java.class.path"),
                     "teste.ContadoresEmNovaJvm", c.arquivo().toString()).redirectErrorStream(true).start();

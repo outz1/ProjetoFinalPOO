@@ -6,6 +6,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 public class Main {
+    // TODO: carrega os dados salvos e abre a tela principal
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             Locadora locadora = new Locadora();

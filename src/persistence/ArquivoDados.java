@@ -16,26 +16,30 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 /**
- * Grava e lê as quatro listas da locadora por serialização, todas no mesmo fluxo. Assim uma locação
- * carregada aponta para o mesmo objeto Veiculo/Cliente/Funcionario que está nas listas.
+ * Grava e le as quatro listas da locadora por serializacao todas no mesmo fluxo Assim uma locacao
+ * carregada aponta para o mesmo objeto Veiculo/Cliente/Funcionario que esta nas listas
  */
 public class ArquivoDados {
     private static final String CAMINHO = "dados/locadora.dat";
 
     private final Path caminho;
 
+    // TODO: define o arquivo de dados padrao ou o informado
     public ArquivoDados() {
         this(CAMINHO);
     }
 
+    // TODO: define o arquivo de dados padrao ou o informado
     public ArquivoDados(String caminho) {
         this.caminho = Path.of(caminho);
     }
 
+    // TODO: devolve caminho
     public Path getCaminho() {
         return caminho;
     }
 
+    // TODO: grava as quatro listas da locadora no arquivo
     public void salvar(Locadora locadora) throws IOException {
         Path pasta = caminho.toAbsolutePath().getParent();
         Files.createDirectories(pasta);
@@ -47,7 +51,7 @@ public class ArquivoDados {
         }
     }
 
-    /** Se o arquivo ainda não existe, a locadora continua vazia. */
+    // TODO: le as quatro listas do arquivo se ele existir e reajusta os contadores
     @SuppressWarnings("unchecked")
     public void carregar(Locadora locadora) throws IOException, ClassNotFoundException {
         if (!Files.exists(caminho))
@@ -67,7 +71,7 @@ public class ArquivoDados {
         locadora.getVeiculos().setItens(veiculos);
         locadora.getLocacoes().setItens(locacoes);
 
-        // os contadores são estáticos e não vão para o arquivo: reajusta para depois do maior código lido
+        // os contadores sao estaticos e nao vao para o arquivo reajusta para depois do maior codigo lido
         int maiorPessoa = Math.max(
                 funcionarios.stream().mapToInt(Funcionario::getId).max().orElse(0),
                 clientes.stream().mapToInt(Cliente::getId).max().orElse(0));

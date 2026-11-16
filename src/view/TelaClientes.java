@@ -5,7 +5,7 @@ import model.Cliente;
 import service.Locadora;
 import java.time.LocalDate;
 
-/** UC02: gerenciar clientes. */
+/** UC02 gerenciar clientes */
 public class TelaClientes extends Tela {
     private static final String INCLUIR = "Incluir cliente";
     private static final String ALTERAR = "Alterar cliente";
@@ -15,20 +15,24 @@ public class TelaClientes extends Tela {
 
     private static final String[] CATEGORIAS_CNH = {"A", "B", "C", "D", "E", "AB", "AC", "AD", "AE"};
 
+    // TODO: cria a tela de clientes
     public TelaClientes(Locadora locadora) {
         super(locadora);
     }
 
+    // TODO: devolve o titulo da tela
     @Override
     protected String titulo() {
         return "Clientes";
     }
 
+    // TODO: devolve as opcoes do menu
     @Override
     protected String[] opcoes() {
         return new String[]{INCLUIR, ALTERAR, EXCLUIR, CONSULTAR, LISTAR};
     }
 
+    // TODO: executa a opcao escolhida no menu
     @Override
     protected void executar(String opcao) throws LocadoraException {
         switch (opcao) {
@@ -41,10 +45,12 @@ public class TelaClientes extends Tela {
         }
     }
 
+    // TODO: pede o CPF e busca o cliente
     private Cliente buscar(String mensagem) throws LocadoraException {
         return locadora.getClientes().buscarPorCpf(lerTexto(mensagem));
     }
 
+    // TODO: le os dados e inclui o cliente
     private void incluir() throws LocadoraException {
         String nome = lerTexto("Nome:");
         String cpf = lerTexto("CPF:");
@@ -61,6 +67,7 @@ public class TelaClientes extends Tela {
         mostrar("Cliente incluído com o código " + cliente.getId() + ".");
     }
 
+    // TODO: mostra os dados atuais e altera o cliente
     private void alterar() throws LocadoraException {
         Cliente atual = buscar("CPF do cliente a alterar:");
         String nome = lerTexto("Nome:", atual.getNome());
@@ -86,6 +93,7 @@ public class TelaClientes extends Tela {
         mostrar("Cliente alterado.");
     }
 
+    // TODO: confirma e exclui o cliente
     private void excluir() throws LocadoraException {
         Cliente c = buscar("CPF do cliente a excluir:");
         if (lerSimNao("Excluir o cliente " + c.getNome() + "?")) {

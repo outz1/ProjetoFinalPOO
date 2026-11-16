@@ -1,6 +1,6 @@
 package model;
 
-/** Todo veículo sabe calcular a própria diária. */
+/** Todo veiculo sabe calcular a propria diaria */
 public interface Tarifavel {
     double calcularValorDiaria();
 }

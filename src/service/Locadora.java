@@ -23,8 +23,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Regras que envolvem várias entidades. Toda operação que altera dados termina em salvarDados()
- * (RF13), então a interface só precisa chamar os métodos daqui.
+ * Regras que envolvem varias entidades Toda operacao que altera dados termina em salvarDados
+ * RF13 entao a interface so precisa chamar os metodos daqui
  */
 public class Locadora {
     public static final int IDADE_MINIMA = 21;
@@ -35,43 +35,48 @@ public class Locadora {
     private final LocacaoRepositorio locacoes = new LocacaoRepositorio();
     private final ArquivoDados arquivo;
 
+    // TODO: cria a locadora com o arquivo de dados padrao ou o informado
     public Locadora() {
         this(new ArquivoDados());
     }
 
+    // TODO: cria a locadora com o arquivo de dados padrao ou o informado
     public Locadora(ArquivoDados arquivo) {
         this.arquivo = arquivo;
     }
 
+    // TODO: devolve veiculos
     public VeiculoRepositorio getVeiculos() {
         return veiculos;
     }
 
+    // TODO: devolve clientes
     public ClienteRepositorio getClientes() {
         return clientes;
     }
 
+    // TODO: devolve funcionarios
     public FuncionarioRepositorio getFuncionarios() {
         return funcionarios;
     }
 
+    // TODO: devolve locacoes
     public LocacaoRepositorio getLocacoes() {
         return locacoes;
     }
 
-    // ---- Veículos (UC01)
-
+    // TODO: inclui o veiculo e salva
     public void incluirVeiculo(Veiculo veiculo) throws LocadoraException {
         veiculos.inserir(veiculo);
         salvarDados();
     }
 
-    /** O veículo já foi mudado pela tela; aqui só se confere a placa e se grava. */
+    // TODO: confere a placa do veiculo ja alterado pela tela e salva
     public void alterarVeiculo(Veiculo veiculo) throws LocadoraException {
         alterar(veiculos, veiculo);
     }
 
-    /** RN09: veículo com locação ativa não pode ser excluído. */
+    // TODO: exclui o veiculo exceto se tiver locacao ativa RN09
     public void excluirVeiculo(int id) throws LocadoraException {
         Veiculo veiculo = veiculos.buscarPorId(id);
         if (locacoes.buscarAtivaPorVeiculo(id) != null)
@@ -80,11 +85,13 @@ public class Locadora {
         salvarDados();
     }
 
+    // TODO: envia o veiculo para manutencao e salva
     public void enviarParaManutencao(int id) throws LocadoraException {
         veiculos.buscarPorId(id).enviarParaManutencao();
         salvarDados();
     }
 
+    // TODO: devolve o veiculo da manutencao para a frota e salva
     public void retornarDaManutencao(int id) throws LocadoraException {
         Veiculo veiculo = veiculos.buscarPorId(id);
         if (veiculo.getSituacao() != SituacaoVeiculo.MANUTENCAO)
@@ -93,18 +100,18 @@ public class Locadora {
         salvarDados();
     }
 
-    // ---- Clientes (UC02)
-
+    // TODO: inclui o cliente e salva
     public void incluirCliente(Cliente cliente) throws LocadoraException {
         clientes.inserir(cliente);
         salvarDados();
     }
 
+    // TODO: confere o CPF do cliente alterado e salva
     public void alterarCliente(Cliente cliente) throws LocadoraException {
         alterar(clientes, cliente);
     }
 
-    /** RN09: cliente com locação ativa não pode ser excluído. */
+    // TODO: exclui o cliente exceto se tiver locacao ativa RN09
     public void excluirCliente(int id) throws LocadoraException {
         Cliente cliente = clientes.buscarPorId(id);
         if (locacoes.buscarAtivaPorCliente(id) != null)
@@ -113,25 +120,24 @@ public class Locadora {
         salvarDados();
     }
 
-    // ---- Funcionários (UC03)
-
+    // TODO: inclui o funcionario e salva
     public void incluirFuncionario(Funcionario funcionario) throws LocadoraException {
         funcionarios.inserir(funcionario);
         salvarDados();
     }
 
+    // TODO: confere CPF e matricula do funcionario alterado e salva
     public void alterarFuncionario(Funcionario funcionario) throws LocadoraException {
         alterar(funcionarios, funcionario);
     }
 
+    // TODO: exclui o funcionario e salva
     public void excluirFuncionario(int id) throws LocadoraException {
         funcionarios.remover(id);
         salvarDados();
     }
 
-    // ---- Locações (UC04 a UC09)
-
-    /** UC05 e UC06 sem gravar nada: confere as regras e devolve o valor previsto para o atendente confirmar. */
+    // TODO: confere as regras sem gravar e devolve o valor previsto UC05 UC06
     public double simularLocacao(int idCli, int idVei, LocalDate retirada, LocalDate prevista, boolean comSeguro)
             throws LocadoraException {
         Cliente cliente = clientes.buscarPorId(idCli);
@@ -141,7 +147,7 @@ public class Locadora {
                 Locacao.diariasEntre(retirada, prevista), comSeguro);
     }
 
-    /** UC04: se qualquer regra falhar, nada é gravado e o veículo continua como estava. */
+    // TODO: valida registra a locacao marca o veiculo como Locado e salva UC04
     public Locacao realizarLocacao(int idCli, int idVei, int idFunc, LocalDate retirada, LocalDate prevista,
                                    boolean comSeguro) throws LocadoraException {
         Cliente cliente = clientes.buscarPorId(idCli);
@@ -156,7 +162,7 @@ public class Locadora {
         return locacao;
     }
 
-    /** UC07: devolve o valor final (diárias usadas mais multa por atraso, se houver). */
+    // TODO: finaliza a locacao e devolve o valor final UC07
     public double registrarDevolucao(int idLocacao, LocalDate data, int km) throws LocadoraException {
         Locacao locacao = locacoes.buscarPorId(idLocacao);
         locacao.finalizar(data, km);
@@ -164,13 +170,13 @@ public class Locadora {
         return locacao.getValorFinal();
     }
 
-    /** UC09: cancela sem cobrança e libera o veículo. */
+    // TODO: cancela a locacao sem cobranca e libera o veiculo UC09
     public void cancelarLocacao(int idLocacao) throws LocadoraException {
         locacoes.buscarPorId(idLocacao).cancelar();
         salvarDados();
     }
 
-    /** Aceita o código da locação ou a placa do veículo (UC07, passo 1). */
+    // TODO: acha a locacao pelo codigo ou pela placa do veiculo UC07
     public Locacao localizarLocacaoAtiva(String codigoOuPlaca) throws RegistroNaoEncontradoException {
         String texto = codigoOuPlaca.trim();
         if (texto.matches("\\d{1,9}"))
@@ -182,9 +188,7 @@ public class Locadora {
         return locacao;
     }
 
-    // ---- Consultas (UC10 e UC11)
-
-    /** Categoria em branco ou nula lista todas. */
+    // TODO: lista os veiculos disponiveis de uma categoria ou de todas UC10
     public List<Veiculo> listarDisponiveis(String categoria) {
         List<Veiculo> disponiveis = veiculos.listarPorSituacao(SituacaoVeiculo.DISPONIVEL);
         if (categoria == null || categoria.isBlank())
@@ -192,21 +196,22 @@ public class Locadora {
         return disponiveis.stream().filter(v -> v.getCategoria().equalsIgnoreCase(categoria.trim())).toList();
     }
 
+    // TODO: lista as locacoes do cliente pelo CPF UC11
     public List<Locacao> historicoPorCliente(String cpf) throws RegistroNaoEncontradoException {
         return locacoes.listarPorCliente(clientes.buscarPorCpf(cpf).getId());
     }
 
+    // TODO: lista as locacoes do veiculo pela placa UC11
     public List<Locacao> historicoPorVeiculo(String placa) throws RegistroNaoEncontradoException {
         return locacoes.listarPorVeiculo(veiculos.buscarPorPlaca(placa).getId());
     }
 
+    // TODO: lista as locacoes ativas que passaram da data prevista
     public List<Locacao> listarAtrasadas(LocalDate hoje) {
         return locacoes.listarAtivas().stream().filter(l -> l.isAtrasada(hoje)).toList();
     }
 
-    // ---- Regras de locação
-
-    /** RN01 a RN05, na ordem em que o atendente costuma resolver cada problema. */
+    // TODO: confere datas disponibilidade habilitacao e locacao ativa RN01 a RN05
     private void validarLocacao(Cliente cliente, Veiculo veiculo, LocalDate retirada, LocalDate prevista)
             throws LocadoraException {
         if (retirada == null || prevista == null)
@@ -220,7 +225,7 @@ public class Locadora {
             throw new LocacaoAtivaExistenteException(cliente.getNome());
     }
 
-    /** RN02 e RN03, conferidas na data da retirada. */
+    // TODO: confere idade validade e categoria da CNH na retirada RN02 RN03
     private void validarHabilitacao(Cliente cliente, Veiculo veiculo, LocalDate data) throws HabilitacaoInvalidaException {
         int idade = cliente.calcularIdade(data);
         if (idade < IDADE_MINIMA)
@@ -234,13 +239,12 @@ public class Locadora {
                     + exigida + " e o cliente possui " + cliente.getCategoriaCnh() + ".");
     }
 
-    // ---- Persistência (RF13)
-
     /**
-     * Como a tela muda o objeto antes de pedir a alteração, uma placa ou CPF repetido já foi aplicado em
-     * memória quando o repositório recusa. Nesse caso volta-se ao que está no arquivo, que tem todas as
-     * alterações anteriores.
+     * Como a tela muda o objeto antes de pedir a alteracao uma placa ou CPF repetido ja foi aplicado em
+     * memoria quando o repositorio recusa Nesse caso voltase ao que esta no arquivo que tem todas as
+     * alteracoes anteriores
      */
+    // TODO: persiste a alteracao ou recarrega o arquivo se o repositorio a recusar
     private <T extends Identificavel> void alterar(RepositorioBase<T> repositorio, T item) throws LocadoraException {
         try {
             repositorio.alterar(item);
@@ -251,6 +255,7 @@ public class Locadora {
         salvarDados();
     }
 
+    // TODO: grava os dados no arquivo RF13
     public void salvarDados() throws LocadoraException {
         try {
             arquivo.salvar(this);
@@ -259,6 +264,7 @@ public class Locadora {
         }
     }
 
+    // TODO: le os dados do arquivo
     public void carregarDados() throws LocadoraException {
         try {
             arquivo.carregar(this);

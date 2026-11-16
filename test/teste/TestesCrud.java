@@ -20,11 +20,13 @@ import static teste.Verificador.igual;
 import static teste.Verificador.lanca;
 import static teste.Verificador.verdadeiro;
 
-/** Inclusão, exclusão, alteração, consulta e lista (item i) de veículos, clientes e funcionários. */
+/** Inclusao exclusao alteracao consulta e lista item i de veiculos clientes e funcionarios */
 final class TestesCrud {
+    // TODO: classe utilitaria nao instanciavel
     private TestesCrud() {
     }
 
+    // TODO: executa os casos de CRUD
     static void executar() {
         grupo("CRUD: veículos das três categorias");
         caso("CT56", "RF01, item i", "Incluir, consultar (código e placa) e listar veículos de cada categoria", () -> {
@@ -70,7 +72,7 @@ final class TestesCrud {
             lanca(DadoDuplicadoException.class, () -> c.locadora.alterarVeiculo(b));
             Veiculo depois = c.locadora.getVeiculos().buscarPorId(b.getId());
             igual(placaOriginal, depois.getPlaca());
-            // alterar mantendo a própria placa não conta como duplicidade
+            // alterar mantendo a propria placa nao conta como duplicidade
             depois.setCor("Azul");
             c.locadora.alterarVeiculo(depois);
             igual("Azul", c.locadora.getVeiculos().buscarPorId(b.getId()).getCor());

@@ -25,11 +25,13 @@ import static teste.Verificador.lanca;
 import static teste.Verificador.lancaExata;
 import static teste.Verificador.verdadeiro;
 
-/** Regras de negócio que envolvem várias entidades, exercitadas pela classe Locadora. */
+/** Regras de negocio que envolvem varias entidades exercitadas pela classe Locadora */
 final class TestesRegras {
+    // TODO: classe utilitaria nao instanciavel
     private TestesRegras() {
     }
 
+    // TODO: executa os casos das regras de negocio
     static void executar() {
         locacao();
         habilitacao();
@@ -38,6 +40,7 @@ final class TestesRegras {
         consultas();
     }
 
+    // TODO: casos de realizacao de locacao
     private static void locacao() {
         grupo("Locadora: registrar locação (UC04, UC05, UC06)");
         caso("CT31", "RF05, UC04", "Locação válida fica Ativa, o veículo fica Locado e o valor previsto é calculado", () -> {
@@ -104,6 +107,7 @@ final class TestesRegras {
         });
     }
 
+    // TODO: casos de idade e CNH do cliente
     private static void habilitacao() {
         grupo("Locadora: habilitação do cliente (RN02, RN03)");
         caso("CT37", "RN02", "Idade mínima de 21 anos na retirada: 21 anos exatos passa, 20 anos e 364 dias não", () -> {
@@ -152,6 +156,7 @@ final class TestesRegras {
         });
     }
 
+    // TODO: casos de exclusao e de dados duplicados
     private static void exclusaoEDuplicidade() {
         grupo("Locadora: exclusão e dados duplicados (RN09, RN10)");
         caso("CT42", "RN09", "Veículo com locação ativa não pode ser excluído; depois da devolução pode", () -> {
@@ -201,6 +206,7 @@ final class TestesRegras {
         });
     }
 
+    // TODO: casos de devolucao e cancelamento
     private static void devolucaoECancelamento() {
         grupo("Locadora: devolução, multa e cancelamento (UC07, UC08, UC09)");
         caso("CT47", "RF08, UC07", "Devolução no prazo: valor final igual ao previsto, locação Finalizada, veículo Disponível", () -> {
@@ -256,6 +262,7 @@ final class TestesRegras {
         });
     }
 
+    // TODO: casos de frota disponivel historico e atrasos
     private static void consultas() {
         grupo("Locadora: manutenção e consultas (UC01, UC10, UC11)");
         caso("CT52", "RF02", "Manutenção: envia e retorna à frota; só volta quem está em manutenção; locado não vai", () -> {

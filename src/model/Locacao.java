@@ -26,9 +26,9 @@ public class Locacao implements Identificavel {
     private double valorFinal;
     private SituacaoLocacao situacao;
 
+    // TODO: cria a locacao ativa e calcula o valor previsto RN05
     public Locacao(Cliente cliente, Veiculo veiculo, Funcionario funcionario, LocalDate dataRetirada,
                    LocalDate dataPrevistaDevolucao, boolean comSeguro) throws LocadoraException {
-        // RN05: a devolução prevista deve ser depois da retirada
         if (!dataPrevistaDevolucao.isAfter(dataRetirada))
             throw new LocadoraException("A devolução prevista deve ser depois da retirada.");
 
@@ -45,12 +45,12 @@ public class Locacao implements Identificavel {
         this.id = proximoId++;
     }
 
-    /** Número de diárias entre duas datas; o mínimo é uma diária (RN05). */
+    // TODO: conta as diarias entre duas datas no minimo uma RN05
     public static long diariasEntre(LocalDate inicio, LocalDate fim) {
         return Math.max(1, ChronoUnit.DAYS.between(inicio, fim));
     }
 
-    /** RN06: 5% de 7 a 14 diárias, 10% de 15 a 29 e 15% a partir de 30. */
+    // TODO: desconto de 5% 7 a 14 10% 15 a 29 e 15% 30 ou mais RN06
     public static double descontoPorDiarias(long diarias) {
         if (diarias >= 30)
             return 0.15;
@@ -61,7 +61,7 @@ public class Locacao implements Identificavel {
         return 0;
     }
 
-    /** Vprevisto = n * d * (1 - desconto) + 25 * n * seguro (RN06 e RN07). */
+    // TODO: diarias x valor x 1 desconto mais seguro RN06 RN07
     public static double calcularValorPrevisto(double valorDiaria, long diarias, boolean comSeguro) {
         double valor = diarias * valorDiaria * (1 - descontoPorDiarias(diarias));
         if (comSeguro)
@@ -69,31 +69,36 @@ public class Locacao implements Identificavel {
         return Formato.centavos(valor);
     }
 
+    // TODO: conta as diarias da retirada ate a data
     public long calcularDiarias(LocalDate ate) {
         return diariasEntre(dataRetirada, ate);
     }
 
+    // TODO: devolve o desconto para o numero de diarias
     public double calcularDesconto(long diarias) {
         return descontoPorDiarias(diarias);
     }
 
+    // TODO: calcula o valor para o numero de diarias com o seguro se contratado
     public double calcularValor(long diarias) {
         return calcularValorPrevisto(veiculo.calcularValorDiaria(), diarias, comSeguro);
     }
 
+    // TODO: conta os dias apos a data prevista zero se nao houver atraso
     public long calcularDiasAtraso(LocalDate ate) {
         return Math.max(0, ChronoUnit.DAYS.between(dataPrevistaDevolucao, ate));
     }
 
-    /** RN08: cada dia de atraso custa 1,5 diária. */
+    // TODO: multa de 1,5 diaria por dia de atraso RN08
     public double calcularMulta(LocalDate devolucao) {
         return Formato.centavos(FATOR_MULTA * veiculo.calcularValorDiaria() * calcularDiasAtraso(devolucao));
     }
 
     /**
-     * Encerra a locação. O valor é recalculado pelas diárias realmente usadas, limitadas às
-     * previstas: dias além do prazo não são cobrados como diária, só pela multa de atraso.
+     * Encerra a locacao O valor e recalculado pelas diarias realmente usadas limitadas as
+     * previstas dias alem do prazo nao sao cobrados como diaria so pela multa de atraso
      */
+    // TODO: encerra a locacao cobra as diarias usadas mais a multa e libera o veiculo
     public void finalizar(LocalDate devolucao, int km) throws LocadoraException {
         if (situacao != SituacaoLocacao.ATIVA)
             throw new LocadoraException("A locação " + id + " não está ativa (situação: " + situacao + ").");
@@ -112,7 +117,7 @@ public class Locacao implements Identificavel {
         veiculo.liberar();
     }
 
-    /** RN09: locação cancelada não é cobrada. */
+    // TODO: cancela a locacao ativa sem cobranca RN09
     public void cancelar() throws LocadoraException {
         if (situacao != SituacaoLocacao.ATIVA)
             throw new LocadoraException("Só é possível cancelar locação ativa (situação atual: " + situacao + ").");
@@ -121,69 +126,84 @@ public class Locacao implements Identificavel {
         veiculo.liberar();
     }
 
+    // TODO: indica se esta ativa e passou da data prevista
     public boolean isAtrasada(LocalDate hoje) {
         return situacao == SituacaoLocacao.ATIVA && hoje.isAfter(dataPrevistaDevolucao);
     }
 
-    /** Chamado depois de carregar o arquivo, para que os próximos códigos não se repitam. */
+    // TODO: reajusta o contador de codigos depois de carregar o arquivo
     public static void atualizarContador(int maiorId) {
         if (maiorId >= proximoId)
             proximoId = maiorId + 1;
     }
 
+    // TODO: devolve id
     @Override
     public int getId() {
         return id;
     }
 
+    // TODO: devolve cliente
     public Cliente getCliente() {
         return cliente;
     }
 
+    // TODO: devolve veiculo
     public Veiculo getVeiculo() {
         return veiculo;
     }
 
+    // TODO: devolve funcionario
     public Funcionario getFuncionario() {
         return funcionario;
     }
 
+    // TODO: devolve dataRetirada
     public LocalDate getDataRetirada() {
         return dataRetirada;
     }
 
+    // TODO: devolve dataPrevistaDevolucao
     public LocalDate getDataPrevistaDevolucao() {
         return dataPrevistaDevolucao;
     }
 
+    // TODO: devolve dataDevolucao
     public LocalDate getDataDevolucao() {
         return dataDevolucao;
     }
 
+    // TODO: devolve kmRetirada
     public int getKmRetirada() {
         return kmRetirada;
     }
 
+    // TODO: devolve kmDevolucao
     public int getKmDevolucao() {
         return kmDevolucao;
     }
 
+    // TODO: devolve comSeguro
     public boolean isComSeguro() {
         return comSeguro;
     }
 
+    // TODO: devolve valorPrevisto
     public double getValorPrevisto() {
         return valorPrevisto;
     }
 
+    // TODO: devolve valorFinal
     public double getValorFinal() {
         return valorFinal;
     }
 
+    // TODO: devolve situacao
     public SituacaoLocacao getSituacao() {
         return situacao;
     }
 
+    // TODO: monta o texto de exibicao
     @Override
     public String toString() {
         String valor = situacao == SituacaoLocacao.ATIVA

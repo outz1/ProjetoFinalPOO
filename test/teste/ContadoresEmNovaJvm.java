@@ -6,11 +6,13 @@ import model.Veiculo;
 import persistence.ArquivoDados;
 import service.Locadora;
 
-/** Roda numa JVM separada (ver CT77): carrega o arquivo e mostra os próximos códigos de veículo, pessoa e locação. */
+/** Roda numa JVM separada ver CT77 carrega o arquivo e mostra os proximos codigos de veiculo pessoa e locacao */
 public final class ContadoresEmNovaJvm {
+    // TODO: classe utilitaria nao instanciavel
     private ContadoresEmNovaJvm() {
     }
 
+    // TODO: carrega o arquivo e imprime os proximos codigos
     public static void main(String[] args) throws Exception {
         Locadora locadora = new Locadora(new ArquivoDados(args[0]));
         locadora.carregarDados();

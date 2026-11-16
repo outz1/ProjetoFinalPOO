@@ -5,10 +5,12 @@ import exception.RegistroNaoEncontradoException;
 import model.Cliente;
 
 public class ClienteRepositorio extends RepositorioBase<Cliente> {
+    // TODO: cria o repositorio de clientes
     public ClienteRepositorio() {
         super("cliente");
     }
 
+    // TODO: busca o cliente pelo CPF
     public Cliente buscarPorCpf(String cpf) throws RegistroNaoEncontradoException {
         for (Cliente c : itens) {
             if (c.getCpf().equals(cpf.trim()))
@@ -17,7 +19,7 @@ public class ClienteRepositorio extends RepositorioBase<Cliente> {
         throw new RegistroNaoEncontradoException("cliente", "CPF " + cpf);
     }
 
-    /** RN10: o CPF não pode se repetir. */
+    // TODO: recusa CPF repetido RN10
     @Override
     protected void validarInclusao(Cliente cliente) throws DadoDuplicadoException {
         for (Cliente outro : itens) {

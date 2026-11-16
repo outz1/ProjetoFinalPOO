@@ -11,7 +11,7 @@ import service.Locadora;
 import java.time.LocalDate;
 import java.util.List;
 
-/** UC04, UC07, UC09, UC10 e UC11: o dia a dia do balcão. */
+/** UC04 UC07 UC09 UC10 e UC11 o dia a dia do balcao */
 public class TelaLocacoes extends Tela {
     private static final String NOVA = "Nova locação";
     private static final String DEVOLUCAO = "Registrar devolução";
@@ -22,20 +22,24 @@ public class TelaLocacoes extends Tela {
     private static final String ATRASO = "Locações em atraso";
     private static final String LISTAR = "Listar todas as locações";
 
+    // TODO: cria a tela de locacoes e consultas
     public TelaLocacoes(Locadora locadora) {
         super(locadora);
     }
 
+    // TODO: devolve o titulo da tela
     @Override
     protected String titulo() {
         return "Locações e consultas";
     }
 
+    // TODO: devolve as opcoes do menu
     @Override
     protected String[] opcoes() {
         return new String[]{NOVA, DEVOLUCAO, CANCELAR, FROTA, HIST_CLIENTE, HIST_VEICULO, ATRASO, LISTAR};
     }
 
+    // TODO: executa a opcao escolhida no menu
     @Override
     protected void executar(String opcao) throws LocadoraException {
         switch (opcao) {
@@ -51,7 +55,7 @@ public class TelaLocacoes extends Tela {
         }
     }
 
-    /** UC04: informa o cliente, escolhe o veículo, vê o valor previsto e confirma. */
+    // TODO: informa o cliente escolhe o veiculo mostra o valor previsto e confirma UC04
     private void novaLocacao() throws LocadoraException {
         Funcionario funcionario = locadora.getFuncionarios().buscarPorMatricula(lerTexto("Matrícula do funcionário que está atendendo:"));
         Cliente cliente = locadora.getClientes().buscarPorCpf(lerTexto("CPF do cliente:"));
@@ -84,7 +88,7 @@ public class TelaLocacoes extends Tela {
         mostrar("Locação " + locacao.getId() + " registrada. Valor previsto: " + Formato.moeda(locacao.getValorPrevisto()));
     }
 
-    /** UC07: com a devolução, o valor é recalculado pelas diárias usadas e a multa entra se houver atraso. */
+    // TODO: recebe data e quilometragem e mostra o valor final com a multa se houver UC07
     private void registrarDevolucao() throws LocadoraException {
         Locacao locacao = locadora.localizarLocacaoAtiva(lerTexto("Código da locação ou placa do veículo:"));
         LocalDate devolucao = lerData("Data de devolução", LocalDate.now());
@@ -100,6 +104,7 @@ public class TelaLocacoes extends Tela {
         mostrar(texto);
     }
 
+    // TODO: escolhe uma locacao ativa e a cancela se confirmado UC09
     private void cancelarLocacao() throws LocadoraException {
         List<Locacao> ativas = locadora.getLocacoes().listarAtivas();
         if (ativas.isEmpty())
@@ -111,16 +116,19 @@ public class TelaLocacoes extends Tela {
         }
     }
 
+    // TODO: resume o veiculo em uma linha para a lista de escolha
     private static String rotuloVeiculo(Veiculo v) {
         return v.getCategoria() + " " + v.getPlaca() + " | " + v.getMarca() + " " + v.getModelo() + " " + v.getAno()
                 + " | " + Formato.moeda(v.calcularValorDiaria()) + "/dia";
     }
 
+    // TODO: resume a locacao em uma linha para a lista de escolha
     private static String rotuloLocacao(Locacao l) {
         return "Locação " + l.getId() + " | " + l.getVeiculo().getPlaca() + " | " + l.getCliente().getNome()
                 + " | prevista " + Formato.data(l.getDataPrevistaDevolucao());
     }
 
+    // TODO: lista os veiculos disponiveis da categoria escolhida UC10
     private void consultarFrota() {
         String[] categorias = new String[Veiculo.CATEGORIAS.size() + 1];
         categorias[0] = "Todas";

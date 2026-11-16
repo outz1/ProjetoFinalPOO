@@ -28,15 +28,18 @@ import static teste.Verificador.lanca;
 import static teste.Verificador.lancaExata;
 import static teste.Verificador.verdadeiro;
 
-/** Classes do modelo: diárias, fórmulas de valor, estados e validações de campos. */
+/** Classes do modelo diarias formulas de valor estados e validacoes de campos */
 final class TestesModelo {
+    // TODO: classe utilitaria nao instanciavel
     private TestesModelo() {
     }
 
+    // TODO: cria uma locacao de teste com atendente e cliente novos
     private static Locacao locacao(Veiculo veiculo, LocalDate prevista, boolean seguro) throws Exception {
         return new Locacao(Cenario.clienteHabilitado(), veiculo, Cenario.funcionario(Cargo.ATENDENTE), RETIRADA, prevista, seguro);
     }
 
+    // TODO: executa os casos das classes do modelo
     static void executar() {
         diarias();
         valores();
@@ -45,6 +48,7 @@ final class TestesModelo {
         estrutura();
     }
 
+    // TODO: casos de contagem de diarias e desconto
     private static void diarias() {
         grupo("Modelo: diária e CNH de cada categoria (polimorfismo)");
         caso("CT01", "RF01", "Carro automático: diária base +10% (150,00 vira 165,00)",
@@ -74,6 +78,7 @@ final class TestesModelo {
         });
     }
 
+    // TODO: casos das formulas de valor seguro e multa
     private static void valores() {
         grupo("Modelo: valor da locação, desconto, seguro e multa");
         caso("CT07", "RN06", "Desconto por período: 0% até 6, 5% de 7 a 14, 10% de 15 a 29, 15% a partir de 30", () -> {
@@ -127,6 +132,7 @@ final class TestesModelo {
         });
     }
 
+    // TODO: casos das situacoes de veiculo e locacao
     private static void estados() {
         grupo("Modelo: situação do veículo e da locação");
         caso("CT15", "RN01", "locar() muda para Locado e um segundo locar() é recusado", () -> {
@@ -206,6 +212,7 @@ final class TestesModelo {
         });
     }
 
+    // TODO: casos de codigo unico e contadores
     private static void identificadores() {
         grupo("Modelo: códigos automáticos e sequenciais (atributos estáticos)");
         caso("CT24", "RF12", "Clientes e funcionários compartilham a sequência de pessoas, sempre de 1 em 1", () -> {
@@ -245,6 +252,7 @@ final class TestesModelo {
         });
     }
 
+    // TODO: casos de heranca interfaces e validacoes de campos
     private static void estrutura() {
         grupo("Modelo: classes abstratas e interfaces");
         caso("CT29", "Item h", "Pessoa, Veiculo e RepositorioBase são abstratas; Identificavel, Tarifavel e Repositorio são interfaces", () -> {
