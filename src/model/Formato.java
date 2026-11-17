@@ -4,6 +4,7 @@ import exception.LocadoraException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
@@ -14,6 +15,8 @@ public final class Formato {
     private static final Locale BRASIL = Locale.forLanguageTag("pt-BR");
     private static final DateTimeFormatter DATA =
             DateTimeFormatter.ofPattern("dd/MM/uuuu").withResolverStyle(ResolverStyle.STRICT);
+
+    private static final DateTimeFormatter DATA_HORA = DateTimeFormatter.ofPattern("dd/MM/uuuu HH:mm:ss");
 
     // TODO: classe utilitaria nao instanciavel
     private Formato() {
@@ -31,6 +34,11 @@ public final class Formato {
     // TODO: formata a data como dd/mm/aaaa
     public static String data(LocalDate data) {
         return data == null ? "-" : data.format(DATA);
+    }
+
+    // TODO: formata data e hora como dd/mm/aaaa hh:mm:ss
+    public static String dataHora(LocalDateTime momento) {
+        return momento == null ? "-" : momento.format(DATA_HORA);
     }
 
     // TODO: formata o valor em reais

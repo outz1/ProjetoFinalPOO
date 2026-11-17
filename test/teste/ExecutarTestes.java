@@ -16,6 +16,7 @@ public final class ExecutarTestes {
             TestesRegras.executar();
             TestesCrud.executar();
             TestesPersistencia.executar();
+            TestesHistorico.executar();
         } finally {
             Cenario.limpar();
         }

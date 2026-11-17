@@ -1,0 +1,6 @@
+# saida de compilacao (IntelliJ e linha de comando)
+build/
+out/
+
+# dados gravados pelo programa
+dados/

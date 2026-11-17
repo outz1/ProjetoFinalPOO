@@ -137,3 +137,17 @@ Executados por `teste.ExecutarTestes` (código em `test/teste/`). A coluna Requi
 | CT69 | RF13, item l | Arquivo corrompido gera LocadoraException com mensagem e não apaga o arquivo | Passou |
 | CT70 | RF12, RF13 | Em outra execução do programa, os códigos continuam depois do maior código gravado | Passou |
 | CT71 | item m | As listas lidas do arquivo são ArrayList e o repositório as manipula | Passou |
+
+## Histórico de alterações: painel do menu principal
+
+| Caso | Requisitos | O que verifica | Resultado |
+|---|---|---|---|
+| CT72 | painel | Incluir veículo, cliente e funcionário anota uma inclusão na categoria certa | Passou |
+| CT73 | painel | Alterar um veículo anota só o campo que mudou; salvar sem mudar nada não anota | Passou |
+| CT74 | painel | Alteração recusada (placa repetida) não entra no histórico | Passou |
+| CT75 | painel | Excluir anota a exclusão com os dados que o registro tinha | Passou |
+| CT76 | painel | Manutenção e retorno anotam a mudança de situação do veículo | Passou |
+| CT77 | painel | Locar, devolver e cancelar anotam a locação e a situação do veículo | Passou |
+| CT78 | painel, RF13 | O histórico é gravado no arquivo e uma locadora nova o enxerga | Passou |
+| CT79 | painel | O histórico avisa o ouvinte a cada alteração anotada e para de avisar depois de removido | Passou |
+| CT80 | painel, RF13 | Arquivo gravado antes do histórico existir ainda carrega, com histórico vazio | Passou |

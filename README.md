@@ -19,6 +19,7 @@ Projeto final da disciplina de Programação Orientada a Objetos (UFG). Aplicati
 - Registrar devolução, com valor final e multa por atraso.
 - Cancelar uma locação ativa.
 - Consultar os veículos disponíveis por categoria e o histórico de locações por cliente, por veículo ou em atraso.
+- Painel de alterações: janela separada que abre junto com o programa, fica ao lado do menu e se atualiza sozinha. Tem um resumo e uma aba por categoria (veículos, clientes, funcionários e locações) com tudo o que foi incluído, alterado ou excluído, o antes e o depois de cada campo e filtro por tipo. Se for fechada, a opção "Mostrar painel de alterações" do menu a abre de novo. O histórico é gravado no mesmo arquivo de dados.
 - Gerar códigos automáticos e sequenciais, salvar os dados em `dados/locadora.dat` a cada alteração e carregá-los ao abrir.
 
 ## Como rodar
@@ -58,6 +59,8 @@ Na pasta do projeto:
 javac -encoding UTF-8 -d build/src $(find src -name '*.java')
 java -cp build/src Main
 ```
+
+As pastas `build/` e `out/` (código compilado) e `dados/` (arquivo de dados do programa) ficam fora do git, ver `.gitignore`.
 
 Na primeira vez, cadastre um funcionário, um veículo e um cliente antes de registrar a primeira locação (a matrícula do funcionário é pedida na locação).
 
