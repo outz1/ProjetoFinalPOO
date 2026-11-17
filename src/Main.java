@@ -1,5 +1,6 @@
 import exception.LocadoraException;
 import service.Locadora;
+import view.Estilo;
 import view.PainelAlteracoes;
 import view.TelaPrincipal;
 
@@ -10,6 +11,7 @@ public class Main {
     // TODO: carrega os dados salvos abre o painel de alteracoes e a tela principal
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
+            Estilo.aplicar();
             Locadora locadora = new Locadora();
             try {
                 locadora.carregarDados();

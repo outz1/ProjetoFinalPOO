@@ -3,10 +3,11 @@ package view;
 import model.Alteracao;
 import model.CategoriaAlteracao;
 import model.Formato;
-import model.Locacao;
 import model.SituacaoVeiculo;
 import model.TipoAlteracao;
 import service.Locadora;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -20,8 +21,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -31,11 +32,11 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.Rectangle;
 import java.awt.FlowLayout;
-import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -47,18 +48,18 @@ import java.util.List;
 
 /**
  * Janela auxiliar que fica aberta ao lado do menu e mostra o que foi incluido alterado ou excluido
- * Tem uma aba de resumo e uma aba para cada categoria com a lista da mais recente para a mais antiga
- * e os detalhes da linha escolhida Ela se atualiza sozinha a cada alteracao e nao e bloqueada pelas
- * janelas do menu O painel le o historico da Locadora e nao altera nenhum dado
+ * Tem uma aba de resumo com cartoes e uma aba para cada categoria com a lista da mais recente para a
+ * mais antiga e os detalhes da linha escolhida Ela se atualiza sozinha a cada alteracao e nao e
+ * bloqueada pelas janelas do menu O painel le o historico da Locadora e nao altera nenhum dado
  */
 public class PainelAlteracoes {
     private static final String TITULO = "Painel de alterações";
     private static final String TODOS = "Todos os tipos";
     private static final String[] COLUNAS = {"Data e hora", "Tipo", "Registro", "Ação", "O que mudou"};
-    private static final int[] LARGURAS = {140, 75, 150, 190, 300};
+    private static final int[] LARGURAS = {170, 100, 190, 230, 380};
     private static final int COLUNA_TIPO = 1;
+    private static final int ALTURA_LINHA = 30;
     private static final int RECENTES_NO_RESUMO = 8;
-    private static final Font FONTE = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
     private final Locadora locadora;
     private final JTabbedPane abas = new JTabbedPane();
@@ -70,8 +71,10 @@ public class PainelAlteracoes {
     // TODO: cria o painel de alteracoes ainda sem janela
     public PainelAlteracoes(Locadora locadora) {
         this.locadora = locadora;
-        rodape.setFont(FONTE);
-        rodape.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+        abas.setFont(Estilo.NEGRITO);
+        rodape.setFont(Estilo.PEQUENA);
+        rodape.setForeground(Estilo.TEXTO_SUAVE);
+        rodape.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
     }
 
     // TODO: abre a janela do painel ou a traz para a frente se ja estiver aberta
@@ -95,9 +98,9 @@ public class PainelAlteracoes {
         nova.add(rodape, BorderLayout.SOUTH);
 
         Rectangle tela = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-        int largura = Math.max(640, Math.min(900, tela.width * 45 / 100));
-        int altura = Math.min(600, tela.height);
-        nova.setMinimumSize(new Dimension(520, 360));
+        int largura = Math.min(tela.width, Math.max(860, Math.min(1100, tela.width * 55 / 100)));
+        int altura = Math.min(760, tela.height);
+        nova.setMinimumSize(new Dimension(Math.min(640, tela.width), Math.min(420, tela.height)));
         nova.setBounds(tela.x + tela.width - largura, tela.y, largura, altura);
 
         locadora.getHistorico().adicionarOuvinte(ouvinte);
@@ -135,53 +138,109 @@ public class PainelAlteracoes {
         }
         abas.setSelectedIndex(Math.min(escolhida, abas.getTabCount() - 1));
         rodape.setText("Atualizado em " + Formato.dataHora(LocalDateTime.now())
-                + "  |  atualiza sozinho a cada alteração");
+                + "   |   atualiza sozinho a cada alteração");
     }
 
-    // TODO: monta a aba de resumo com a situacao atual os totais por categoria e as ultimas alteracoes
+    // TODO: monta a aba de resumo com cartoes da situacao atual totais por categoria e ultimas alteracoes
     private JComponent montarResumo() {
         List<Alteracao> todas = locadora.getHistorico().listar();
-        StringBuilder texto = new StringBuilder();
 
-        texto.append("SITUAÇÃO ATUAL\n");
-        texto.append("  Veículos: ").append(locadora.getVeiculos().listar().size()).append(" (");
-        SituacaoVeiculo[] situacoes = SituacaoVeiculo.values();
-        for (int i = 0; i < situacoes.length; i++) {
-            if (i > 0)
-                texto.append(", ");
-            texto.append(locadora.getVeiculos().listarPorSituacao(situacoes[i]).size()).append(" ")
-                    .append(situacoes[i].toString().toLowerCase());
+        JPanel topo = new JPanel();
+        topo.setLayout(new BoxLayout(topo, BoxLayout.Y_AXIS));
+        topo.add(secao("Situação atual", montarCartoes()));
+        topo.add(Box.createVerticalStrut(14));
+        topo.add(secao("Alterações por categoria", montarTabelaCategorias()));
+
+        List<Alteracao> recentes = new ArrayList<>(todas);
+        Collections.reverse(recentes);
+        if (recentes.size() > RECENTES_NO_RESUMO)
+            recentes = recentes.subList(0, RECENTES_NO_RESUMO);
+        JComponent ultimas = recentes.isEmpty()
+                ? rotuloVazio("Nenhuma alteração registrada ainda.")
+                : new JScrollPane(montarTabelaRecentes(recentes));
+
+        JPanel resumo = new JPanel(new BorderLayout(0, 14));
+        resumo.setBorder(BorderFactory.createEmptyBorder(14, 14, 14, 14));
+        resumo.add(topo, BorderLayout.NORTH);
+        resumo.add(secao("Últimas alterações", ultimas), BorderLayout.CENTER);
+        return resumo;
+    }
+
+    // TODO: monta os cartoes com veiculos por situacao locacoes ativas e em atraso
+    private JComponent montarCartoes() {
+        JPanel cartoes = new JPanel(new GridLayout(1, 5, 12, 0));
+        for (SituacaoVeiculo situacao : SituacaoVeiculo.values()) {
+            Color cor = switch (situacao) {
+                case DISPONIVEL -> Estilo.VERDE;
+                case LOCADO -> Estilo.PRIMARIA;
+                case MANUTENCAO -> Estilo.LARANJA;
+            };
+            String legenda = switch (situacao) {
+                case DISPONIVEL -> "Veículos disponíveis";
+                case LOCADO -> "Veículos locados";
+                case MANUTENCAO -> "Veículos em manutenção";
+            };
+            cartoes.add(cartao(locadora.getVeiculos().listarPorSituacao(situacao).size(), legenda, cor));
         }
-        texto.append(")\n");
-        List<Locacao> ativas = locadora.getLocacoes().listarAtivas();
-        texto.append("  Locações ativas: ").append(ativas.size()).append(" (")
-                .append(locadora.listarAtrasadas(LocalDate.now()).size()).append(" em atraso)\n");
-        texto.append("  Clientes: ").append(locadora.getClientes().listar().size())
-                .append("   Funcionários: ").append(locadora.getFuncionarios().listar().size()).append("\n\n");
+        int atrasadas = locadora.listarAtrasadas(LocalDate.now()).size();
+        cartoes.add(cartao(locadora.getLocacoes().listarAtivas().size(), "Locações ativas", Estilo.PRIMARIA));
+        cartoes.add(cartao(atrasadas, "Locações em atraso", atrasadas > 0 ? Estilo.VERMELHO : Estilo.TEXTO_SUAVE));
 
-        texto.append("ALTERAÇÕES REGISTRADAS: ").append(todas.size()).append("\n\n");
-        texto.append(String.format("%-14s %10s %11s %10s   %s%n", "Categoria", "Inclusões", "Alterações", "Exclusões",
-                "Última alteração"));
-        texto.append("-".repeat(78)).append("\n");
+        JLabel totais = new JLabel("Frota: " + locadora.getVeiculos().listar().size() + " veículo(s)   |   Clientes: "
+                + locadora.getClientes().listar().size() + "   |   Funcionários: " + locadora.getFuncionarios().listar().size());
+        totais.setFont(Estilo.PEQUENA);
+        totais.setForeground(Estilo.TEXTO_SUAVE);
+
+        JPanel bloco = new JPanel(new BorderLayout(0, 8));
+        bloco.add(cartoes, BorderLayout.CENTER);
+        bloco.add(totais, BorderLayout.SOUTH);
+        return bloco;
+    }
+
+    // TODO: monta um cartao com um numero grande e a legenda
+    private static JComponent cartao(int valor, String legenda, Color cor) {
+        JLabel numero = new JLabel(String.valueOf(valor));
+        numero.setFont(Estilo.DESTAQUE);
+        numero.setForeground(cor);
+        JLabel texto = new JLabel(legenda);
+        texto.setFont(Estilo.PEQUENA);
+        texto.setForeground(Estilo.TEXTO_SUAVE);
+
+        JPanel cartao = new JPanel(new BorderLayout(0, 2));
+        cartao.setBackground(Estilo.FUNDO_CARTAO);
+        cartao.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Estilo.BORDA),
+                BorderFactory.createEmptyBorder(10, 14, 10, 14)));
+        cartao.add(numero, BorderLayout.CENTER);
+        cartao.add(texto, BorderLayout.SOUTH);
+        return cartao;
+    }
+
+    // TODO: monta a tabela de inclusoes alteracoes e exclusoes de cada categoria
+    private JComponent montarTabelaCategorias() {
+        DefaultTableModel modelo = modeloSoLeitura(new String[]{"Categoria", "Inclusões", "Alterações", "Exclusões", "Última alteração"});
         for (CategoriaAlteracao categoria : CategoriaAlteracao.values()) {
             List<Alteracao> itens = locadora.getHistorico().listarPorCategoria(categoria);
             String ultima = itens.isEmpty() ? "-" : Formato.dataHora(itens.get(itens.size() - 1).getMomento());
-            texto.append(String.format("%-14s %10d %11d %10d   %s%n", categoria, contar(itens, TipoAlteracao.INCLUSAO),
-                    contar(itens, TipoAlteracao.ALTERACAO), contar(itens, TipoAlteracao.EXCLUSAO), ultima));
+            modelo.addRow(new Object[]{categoria, contar(itens, TipoAlteracao.INCLUSAO),
+                    contar(itens, TipoAlteracao.ALTERACAO), contar(itens, TipoAlteracao.EXCLUSAO), ultima});
         }
+        JTable tabela = criarTabela(modelo);
+        for (int i = 1; i <= 3; i++)
+            tabela.getColumnModel().getColumn(i).setCellRenderer(new RenderizadorLinha(SwingConstants.CENTER));
+        return tabelaComCabecalho(tabela);
+    }
 
-        texto.append("\nÚLTIMAS ALTERAÇÕES\n");
-        if (todas.isEmpty()) {
-            texto.append("  Nenhuma alteração registrada ainda.\n");
-        } else {
-            int inicio = Math.max(0, todas.size() - RECENTES_NO_RESUMO);
-            for (int i = todas.size() - 1; i >= inicio; i--) {
-                Alteracao a = todas.get(i);
-                texto.append(String.format("  %s  %-12s %-10s %-22s %s%n", Formato.dataHora(a.getMomento()), a.getCategoria(),
-                        a.getTipo(), a.getRegistro(), a.getAcao()));
-            }
-        }
-        return rolagem(areaDeTexto(texto.toString()));
+    // TODO: monta a tabela das ultimas alteracoes de todas as categorias
+    private JTable montarTabelaRecentes(List<Alteracao> recentes) {
+        DefaultTableModel modelo = modeloSoLeitura(new String[]{"Data e hora", "Categoria", "Tipo", "Registro", "Ação"});
+        for (Alteracao a : recentes)
+            modelo.addRow(new Object[]{Formato.dataHora(a.getMomento()), a.getCategoria(), a.getTipo(), a.getRegistro(), a.getAcao()});
+        JTable tabela = criarTabela(modelo);
+        tabela.getColumnModel().getColumn(2).setCellRenderer(new RenderizadorTipo());
+        int[] larguras = {170, 120, 100, 200, 260};
+        for (int i = 0; i < larguras.length; i++)
+            tabela.getColumnModel().getColumn(i).setPreferredWidth(larguras[i]);
+        return tabela;
     }
 
     // TODO: conta as alteracoes de um tipo
@@ -191,30 +250,17 @@ public class PainelAlteracoes {
 
     // TODO: monta a aba de uma categoria com filtro por tipo tabela e detalhes
     private JComponent montarAba(List<Alteracao> itens) {
-        if (itens.isEmpty()) {
-            JLabel vazio = new JLabel("Nenhuma alteração registrada nesta categoria.", SwingConstants.CENTER);
-            vazio.setFont(FONTE);
-            return vazio;
-        }
+        if (itens.isEmpty())
+            return rotuloVazio("Nenhuma alteração registrada nesta categoria.");
         List<Alteracao> recentes = new ArrayList<>(itens);
         Collections.reverse(recentes);
 
-        DefaultTableModel modelo = new DefaultTableModel(COLUNAS, 0) {
-            // TODO: a tabela so mostra nao se edita
-            @Override
-            public boolean isCellEditable(int linha, int coluna) {
-                return false;
-            }
-        };
+        DefaultTableModel modelo = modeloSoLeitura(COLUNAS);
         for (Alteracao a : recentes)
             modelo.addRow(new Object[]{Formato.dataHora(a.getMomento()), a.getTipo(), a.getRegistro(), a.getAcao(), resumo(a)});
 
-        JTable tabela = new JTable(modelo);
-        tabela.setFont(FONTE);
-        tabela.setRowHeight(20);
+        JTable tabela = criarTabela(modelo);
         tabela.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tabela.setFillsViewportHeight(true);
-        tabela.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         for (int i = 0; i < LARGURAS.length; i++)
             tabela.getColumnModel().getColumn(i).setPreferredWidth(LARGURAS[i]);
         tabela.getColumnModel().getColumn(COLUNA_TIPO).setCellRenderer(new RenderizadorTipo());
@@ -232,9 +278,9 @@ public class PainelAlteracoes {
         });
 
         JLabel contagem = new JLabel();
-        contagem.setFont(FONTE);
+        contagem.setFont(Estilo.TEXTO);
+        contagem.setForeground(Estilo.TEXTO_SUAVE);
         JComboBox<Object> filtro = new JComboBox<>();
-        filtro.setFont(FONTE);
         filtro.addItem(TODOS);
         for (TipoAlteracao tipo : TipoAlteracao.values())
             filtro.addItem(tipo);
@@ -250,16 +296,18 @@ public class PainelAlteracoes {
         filtro.addActionListener(e -> aplicarFiltro.run());
         aplicarFiltro.run();
 
-        JPanel topo = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        JPanel topo = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
         JLabel rotuloFiltro = new JLabel("Mostrar:");
-        rotuloFiltro.setFont(FONTE);
+        rotuloFiltro.setFont(Estilo.NEGRITO);
         topo.add(rotuloFiltro);
         topo.add(filtro);
         topo.add(contagem);
 
         JSplitPane divisao = new JSplitPane(JSplitPane.VERTICAL_SPLIT, new JScrollPane(tabela), rolagem(detalhe));
-        divisao.setResizeWeight(0.65);
+        divisao.setResizeWeight(0.6);
+        divisao.setBorder(null);
         JPanel aba = new JPanel(new BorderLayout());
+        aba.setBorder(BorderFactory.createEmptyBorder(4, 10, 10, 10));
         aba.add(topo, BorderLayout.NORTH);
         aba.add(divisao, BorderLayout.CENTER);
         return aba;
@@ -287,12 +335,69 @@ public class PainelAlteracoes {
                 + "\n\n" + titulo + "\n" + a.getDetalhes();
     }
 
+    // TODO: cria um modelo de tabela que so mostra nao se edita
+    private static DefaultTableModel modeloSoLeitura(String[] colunas) {
+        return new DefaultTableModel(colunas, 0) {
+            private static final long serialVersionUID = 1L;
+
+            // TODO: a tabela so mostra nao se edita
+            @Override
+            public boolean isCellEditable(int linha, int coluna) {
+                return false;
+            }
+        };
+    }
+
+    // TODO: cria a tabela no estilo do painel com linhas altas zebradas e cabecalho em negrito
+    private static JTable criarTabela(DefaultTableModel modelo) {
+        JTable tabela = new JTable(modelo);
+        tabela.setFont(Estilo.TEXTO);
+        tabela.setRowHeight(ALTURA_LINHA);
+        tabela.setShowGrid(false);
+        tabela.setIntercellSpacing(new Dimension(0, 0));
+        tabela.setFillsViewportHeight(true);
+        tabela.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+        tabela.setDefaultRenderer(Object.class, new RenderizadorLinha(SwingConstants.LEFT));
+        tabela.getTableHeader().setFont(Estilo.NEGRITO);
+        tabela.getTableHeader().setReorderingAllowed(false);
+        tabela.getTableHeader().setPreferredSize(new Dimension(0, ALTURA_LINHA + 4));
+        return tabela;
+    }
+
+    // TODO: junta o cabecalho e as linhas de uma tabela que nao fica dentro de rolagem
+    private static JComponent tabelaComCabecalho(JTable tabela) {
+        JPanel painel = new JPanel(new BorderLayout());
+        painel.setBorder(BorderFactory.createLineBorder(Estilo.BORDA));
+        painel.add(tabela.getTableHeader(), BorderLayout.NORTH);
+        painel.add(tabela, BorderLayout.CENTER);
+        return painel;
+    }
+
+    // TODO: poe um titulo de secao acima de um componente
+    private static JComponent secao(String titulo, JComponent conteudo) {
+        JLabel rotulo = new JLabel(titulo);
+        rotulo.setFont(Estilo.SECAO);
+        rotulo.setForeground(Estilo.PRIMARIA);
+        JPanel painel = new JPanel(new BorderLayout(0, 8));
+        painel.add(rotulo, BorderLayout.NORTH);
+        painel.add(conteudo, BorderLayout.CENTER);
+        return painel;
+    }
+
+    // TODO: mostra uma mensagem centralizada quando nao ha nada para listar
+    private static JComponent rotuloVazio(String texto) {
+        JLabel vazio = new JLabel(texto, SwingConstants.CENTER);
+        vazio.setFont(Estilo.TEXTO);
+        vazio.setForeground(Estilo.TEXTO_SUAVE);
+        return vazio;
+    }
+
     // TODO: cria uma area de texto so de leitura no mesmo estilo das outras telas
     private static JTextArea areaDeTexto(String texto) {
         JTextArea area = new JTextArea(texto);
         area.setEditable(false);
-        area.setFont(FONTE);
-        area.setMargin(new Insets(6, 8, 6, 8));
+        area.setFont(Estilo.MONO);
+        area.setMargin(new Insets(8, 10, 8, 10));
         area.setCaretPosition(0);
         return area;
     }
@@ -300,7 +405,7 @@ public class PainelAlteracoes {
     // TODO: coloca o componente em uma area com barra de rolagem
     private static JScrollPane rolagem(JComponent componente) {
         JScrollPane painel = new JScrollPane(componente);
-        painel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        painel.setBorder(BorderFactory.createLineBorder(Estilo.BORDA));
         return painel;
     }
 
@@ -320,24 +425,49 @@ public class PainelAlteracoes {
         }
     }
 
-    /** Pinta o tipo de verde inclusao laranja alteracao e vermelho exclusao sem mexer na linha escolhida */
-    private static class RenderizadorTipo extends DefaultTableCellRenderer {
+    /** Celula com respiro lateral e linhas alternadas em duas cores sem mexer na linha escolhida */
+    private static class RenderizadorLinha extends DefaultTableCellRenderer {
         private static final long serialVersionUID = 1L;
 
-        private static final Color VERDE = new Color(0x1B, 0x7F, 0x3B);
-        private static final Color LARANJA = new Color(0xB3, 0x5C, 0x00);
-        private static final Color VERMELHO = new Color(0xB0, 0x20, 0x20);
+        // TODO: cria o renderizador com o alinhamento do texto
+        RenderizadorLinha(int alinhamento) {
+            setHorizontalAlignment(alinhamento);
+            setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+        }
+
+        // TODO: alterna a cor de fundo das linhas que nao estao escolhidas
+        @Override
+        public Component getTableCellRendererComponent(JTable tabela, Object valor, boolean selecionada,
+                                                       boolean foco, int linha, int coluna) {
+            Component celula = super.getTableCellRendererComponent(tabela, valor, selecionada, false, linha, coluna);
+            if (!selecionada) {
+                celula.setBackground(linha % 2 == 0 ? Color.WHITE : Estilo.ZEBRA);
+                celula.setForeground(Color.BLACK);
+            }
+            return celula;
+        }
+    }
+
+    /** Pinta o tipo de verde inclusao laranja alteracao e vermelho exclusao em negrito */
+    private static class RenderizadorTipo extends RenderizadorLinha {
+        private static final long serialVersionUID = 1L;
+
+        // TODO: cria o renderizador do tipo alinhado a esquerda
+        RenderizadorTipo() {
+            super(SwingConstants.LEFT);
+        }
 
         // TODO: escolhe a cor do texto pelo tipo da alteracao
         @Override
         public Component getTableCellRendererComponent(JTable tabela, Object valor, boolean selecionada,
                                                        boolean foco, int linha, int coluna) {
             Component celula = super.getTableCellRendererComponent(tabela, valor, selecionada, foco, linha, coluna);
+            celula.setFont(Estilo.NEGRITO);
             if (!selecionada && valor instanceof TipoAlteracao tipo) {
                 celula.setForeground(switch (tipo) {
-                    case INCLUSAO -> VERDE;
-                    case ALTERACAO -> LARANJA;
-                    case EXCLUSAO -> VERMELHO;
+                    case INCLUSAO -> Estilo.VERDE;
+                    case ALTERACAO -> Estilo.LARANJA;
+                    case EXCLUSAO -> Estilo.VERMELHO;
                 });
             }
             return celula;

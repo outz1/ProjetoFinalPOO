@@ -3,13 +3,24 @@ package view;
 import exception.LocadoraException;
 import model.Formato;
 import service.Locadora;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
+import java.awt.Insets;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -44,14 +55,11 @@ public abstract class Tela {
     // TODO: mostra o menu em laco ate o usuario voltar tratando os erros
     public final void exibir() {
         while (true) {
-            List<String> menu = new ArrayList<>(List.of(opcoes()));
-            menu.add(rotuloVoltar());
-            Object escolha = JOptionPane.showInputDialog(null, "Escolha uma opção:", titulo(),
-                    JOptionPane.QUESTION_MESSAGE, null, menu.toArray(), menu.get(0));
-            if (escolha == null || escolha.equals(rotuloVoltar()))
+            String escolha = escolherNoMenu();
+            if (escolha == null)
                 return;
             try {
-                executar(escolha.toString());
+                executar(escolha);
             } catch (OperacaoCanceladaException e) {
                 // o usuario desistiu no meio da operacao volta ao menu
             } catch (LocadoraException e) {
@@ -61,6 +69,58 @@ public abstract class Tela {
                 mostrarErro("Erro inesperado: " + e);
             }
         }
+    }
+
+    // TODO: mostra as opcoes em uma lista grande e devolve a escolhida ou nulo se voltar ou fechar
+    private String escolherNoMenu() {
+        final String abrir = "Abrir";
+        JList<String> lista = new JList<>(opcoes());
+        lista.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        lista.setSelectedIndex(0);
+        lista.setFont(Estilo.MENU);
+        lista.setFixedCellHeight(44);
+        lista.setCellRenderer(new DefaultListCellRenderer() {
+            private static final long serialVersionUID = 1L;
+
+            // TODO: da um respiro lateral a cada opcao do menu
+            @Override
+            public Component getListCellRendererComponent(JList<?> l, Object valor, int indice,
+                                                                   boolean selecionada, boolean foco) {
+                JLabel opcao = (JLabel) super.getListCellRendererComponent(l, valor, indice, selecionada, foco);
+                opcao.setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 14));
+                return opcao;
+            }
+        });
+        // duplo clique abre a opcao e ao aparecer a lista ja recebe o teclado para as setas funcionarem
+        lista.addMouseListener(new MouseAdapter() {
+            // TODO: abre a opcao com duplo clique
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2 && lista.locationToIndex(e.getPoint()) >= 0) {
+                    JOptionPane painel = (JOptionPane) SwingUtilities.getAncestorOfClass(JOptionPane.class, lista);
+                    if (painel != null)
+                        painel.setValue(abrir);
+                }
+            }
+        });
+        lista.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && lista.isShowing())
+                SwingUtilities.invokeLater(lista::requestFocusInWindow);
+        });
+
+        JLabel cabecalho = new JLabel("Escolha uma opção:");
+        cabecalho.setFont(Estilo.SECAO);
+        cabecalho.setForeground(Estilo.PRIMARIA);
+        JScrollPane rolagem = new JScrollPane(lista);
+        rolagem.setPreferredSize(new Dimension(380, Math.min(opcoes().length * 44 + 6, 440)));
+        JPanel painel = new JPanel(new BorderLayout(0, 10));
+        painel.add(cabecalho, BorderLayout.NORTH);
+        painel.add(rolagem, BorderLayout.CENTER);
+
+        Object[] botoes = {abrir, rotuloVoltar()};
+        int resposta = JOptionPane.showOptionDialog(null, painel, titulo(), JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE, null, botoes, abrir);
+        return resposta == 0 ? lista.getSelectedValue() : null;
     }
 
     // TODO: pede um texto com valor sugerido opcional
@@ -182,10 +242,11 @@ public abstract class Tela {
     private void mostrarTexto(String cabecalho, String texto) {
         JTextArea area = new JTextArea(texto);
         area.setEditable(false);
-        area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        area.setFont(Estilo.MONO);
+        area.setMargin(new Insets(8, 10, 8, 10));
         area.setCaretPosition(0);
         JScrollPane painel = new JScrollPane(area);
-        painel.setPreferredSize(new Dimension(900, 400));
+        painel.setPreferredSize(new Dimension(1000, 480));
         JOptionPane.showMessageDialog(null, painel, cabecalho, JOptionPane.PLAIN_MESSAGE);
     }
 }
