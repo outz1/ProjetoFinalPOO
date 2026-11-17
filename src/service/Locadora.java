@@ -65,7 +65,7 @@ public class Locadora {
         return locacoes;
     }
 
-    // TODO: inclui o veiculo e salva
+    // TODO: inclue o veiculo e salva
     public void incluirVeiculo(Veiculo veiculo) throws LocadoraException {
         veiculos.inserir(veiculo);
         salvarDados();
